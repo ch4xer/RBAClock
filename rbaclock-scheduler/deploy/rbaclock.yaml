@@ -1,0 +1,13 @@
+apiVersion: kubescheduler.config.k8s.io/v1
+kind: KubeSchedulerConfiguration
+clientConnection:
+  kubeconfig: "/home/ch4ser/Projects/rbaclock/experiment/environment/debian-minikube/data/config"
+profiles:
+- schedulerName: rbaclock
+  plugins:
+    score:
+      enabled:
+      - name: RBAClock
+    postBind:
+      enabled:
+      - name: RBAClock
