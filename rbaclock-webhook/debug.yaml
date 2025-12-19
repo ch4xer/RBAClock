@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: admission-webhook-sa
+  labels:
+    app: admission-webhook
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: admission-webhook-cr
+  labels:
+    app: admission-webhook
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - events
+    verbs:
+      - "*"
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+      - daemonsets
+      - replicasets
+      - statefulsets
+    verbs:
+      - "*"
+  - apiGroups:
+      - autoscaling
+    resources:
+      - "*"
+    verbs:
+      - "*"
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: admission-webhook-crb
+  labels:
+    app: admission-webhook
+subjects:
+  - kind: ServiceAccount
+    name: admission-webhook-sa
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: admission-webhook-cr
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admission-webhook-svc
+spec:
+  ports:
+    - port: 443
+      targetPort: 8080
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: admission-webhook-svc
+subsets:
+- addresses:
+  - ip: 192.168.115.73
+  ports:
+  - port: 8080
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: mutating-webhook-cfg
+  labels:
+    app: admission-webhook
+webhooks:
+  - name: mutate.rbaclock.io
+    clientConfig:
+      service:
+        name: admission-webhook-svc
+        namespace: default
+        path: "/mutate"
+      caBundle: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURCakNDQWU2Z0F3SUJBZ0lCQVRBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwdGFXNXAKYTNWaVpVTkJNQjRYRFRJMU1ETXlOVEEzTURVeE5sb1hEVE0xTURNeU5EQTNNRFV4Tmxvd0ZURVRNQkVHQTFVRQpBeE1LYldsdWFXdDFZbVZEUVRDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBTEhxCmJkM1RTYWh5UjFtakFJd1o2YWRLeW0veitCRWFDbi8xU2lxVU9DWjkxVkpwMldaWE5LRjRMNGdCNTZLbkJ4ZFcKN0t0eUhHTEQxWFN0S1JaKyt1OWdITWQrbmVRNDVxcWVYYVF3eUhvd0hCM2Rsdm9kb2NFY0JBN21OY3JhQm92UApxWDR5Mm5haDBjdHI5OXlEUTQ5UXJkM29tWGs2akd3VUpDWUk0M1pDNm11cWd2NFNISDg2TVZ6TEM5clhTTWNBCjJWRXpMNzFZdnY0dStCdm1SZU1QN2M5djFua1A5NUswZkdwalI2b1E3KzBhVE9xQWljKy9wcUM4a0VUYUxUcmMKVUV5cmRGazQydjBrQ1I0QUVoYTdlOGhHbkdkZjMyN1pxYWRwNlYrSWtkaEVUQ2lCS0tucnQ2U28vRncveFpLVgpJOXh6anFyc3d5dTZxcHNpL05NQ0F3RUFBYU5oTUY4d0RnWURWUjBQQVFIL0JBUURBZ0trTUIwR0ExVWRKUVFXCk1CUUdDQ3NHQVFVRkJ3TUNCZ2dyQmdFRkJRY0RBVEFQQmdOVkhSTUJBZjhFQlRBREFRSC9NQjBHQTFVZERnUVcKQkJRWXhGRUROV3VNS3FLQ1B4akpGQ0swMDg4MmVqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFoUWNzenI1dApLWmpDejNWVFJ5U1JzaTVTbU5UalpCOVM4TzlBQ2c0UTBlRFAyYjVjL1REenZDajUrSkp4NWhVU1o1NHFOWVEwCjAxdndOaVY3QzZ0L2d5MlBJNkhHWGliaTdRb1k2Y0pxTm9iVUs3aURNbXp5QUltazNDWUdZUC8ydDVtU0taMksKUVZDeUZTT0VtTjMweTZVbWJmMHlPNC84djltMlI2QUpxVTFac1RNSGlvaHFYcElPSUJMWmw2aXR2L1o0dE5DcwpzbnNvMHhRR0tJcXBUZGphV2ZNQ29ESzNQZ0F6RU54WVR3N2dSeHFjOVFsOWpCOVlkbUltTkNLWUhNbnVwb2grCk9oakhRNTVwTUhBVFo3TW1YNEZlSUg1em1OZWs2WDZydFcvVktpTVZlMFJ4WjFNV2piYXZzTTYwMCtVMWhlWDgKa3lYbTgyTDhYa0tlWFE9PQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+    rules:
+      - operations: ["CREATE"]
+        apiGroups: [""]
+        apiVersions: ["v1"]
+        resources: ["pods"]
+    sideEffects: None
+    admissionReviewVersions: ["v1"]

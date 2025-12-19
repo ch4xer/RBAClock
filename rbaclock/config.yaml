@@ -1,0 +1,15 @@
+kubeconfig: /home/ch4ser/Projects/rbaclock/experiment/environment/debian-minikube/data/config
+deploy: true
+ignoreNamespaces:
+  - nothing
+ignorePods: # need to ignore positively
+  - kube-proxy
+  - kindnet
+globalKey: rbaclock
+database: "postgres://user:pass@localhost:5432/rbaclock?sslmode=disable"
+weight:
+  container: 1
+  node: 10
+checkerQL: /home/ch4ser/Projects/rbaclock/system/vscode-codeql-starter/codeql-custom-queries-go/check.ql
+sourceCode: /home/ch4ser/Projects/rbaclock/experiment/source
+clusterScript: /home/ch4ser/Projects/rbaclock/system/cluster.py

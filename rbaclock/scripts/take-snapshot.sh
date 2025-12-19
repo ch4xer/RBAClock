@@ -1,0 +1,18 @@
+#!/bin/bash
+
+VBoxManage snapshot "126-vbox" delete "init"
+VBoxManage snapshot "126-vbox-m02" delete "init"
+VBoxManage snapshot "126-vbox-m03" delete "init"
+VBoxManage snapshot "126-vbox-m04" delete "init"
+VBoxManage snapshot "126-vbox-m05" delete "init"
+VBoxManage snapshot "126-vbox-m06" delete "init"
+VBoxManage snapshot "126-vbox-m07" delete "init"
+VBoxManage snapshot "126-vbox-m08" delete "init"
+VBoxManage snapshot "126-vbox" take "init"
+VBoxManage snapshot "126-vbox-m02" take "init"
+VBoxManage snapshot "126-vbox-m03" take "init"
+VBoxManage snapshot "126-vbox-m04" take "init"
+VBoxManage snapshot "126-vbox-m05" take "init"
+VBoxManage snapshot "126-vbox-m06" take "init"
+VBoxManage snapshot "126-vbox-m07" take "init"
+VBoxManage snapshot "126-vbox-m08" take "init"
